@@ -12,6 +12,7 @@ import com.stibocatalog.hunspell.Hunspell;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -19,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import metodos.helper.StringHelper;
 import objetos.banco.Atributo;
-import objetos.banco.Dominio;
 import objetos.banco.Tabela;
 import sistema.NomesPojo;
 
@@ -471,12 +471,14 @@ public class SQLInterpreter {
         if (padraoPalavras == COLADO) {
 
         }
-
-        //Path caminho = Paths.get("/home/cisa/NetBeansProjects/Curso de Java 2016/Script Banco.sql");
-        Path caminho = Paths.get("/home/cisa/Documentos/Gus/Programação/java/Livraria/sql.sql");
-
-        arquivo = caminho.toFile();
-
+        
+        try {
+            //arquivo = new File(SQLInterpreter.class.getResource("/scripts/colado.sql").toURI());
+            arquivo = new File(SQLInterpreter.class.getResource("/scripts/underline.sql").toURI());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         //List<Tabela> tabelas = interpretarSQLColado("id");
         List<Tabela> tabelas = interpretarSQLSeparado("_", "id");
 
