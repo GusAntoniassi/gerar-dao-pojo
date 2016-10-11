@@ -18,9 +18,9 @@ import telas.TelaDominios;
  * @author cisa
  */
 public class Dominios {
-    static class ComboBoxTiposJava extends JComboBox {
-        private String[] tiposJava = new String[] {"BigDecimal", "BigInteger", "boolean", 
-            "char", "int", "String"};
+    public static class ComboBoxTiposJava extends JComboBox {
+        private String[] tiposJava = new String[] {"boolean", 
+            "char", "String"};
     
         public ComboBoxTiposJava(String tipoSelecionado) {
             super();
@@ -33,23 +33,6 @@ public class Dominios {
         }
     }
     
-    public static List<Dominio> resolverDominios(List<Dominio> dominiosNaoResolvidos) {
-        DominiosTableModel dtm = new DominiosTableModel();
-        dtm.addColumn("Nome do domínio");
-        dtm.addColumn("Tipo do domínio");
-        dtm.addColumn("Valor p/ true");
-        dtm.addColumn("Valor p/ false");
-        dtm.addColumn("Inverter");
-        
-        for (Dominio d : dominiosNaoResolvidos) {
-            dtm.addRow(new Object[]{d.nome, new ComboBoxTiposJava(d.tipo), d.V, d.F, new JButton("Inverter")});
-        }
-        
-        TelaDominios telaDominios = new TelaDominios(dtm);
-        
-        return dominiosNaoResolvidos;
-    }
-    
     
     
     public static void main(String[] args) {
@@ -59,6 +42,6 @@ public class Dominios {
         dominios.add(new Dominio("Teste3", "boolean", "F", "J"));
         dominios.add(new Dominio("Teste4", "String"));
         dominios.add(new Dominio("Teste5", "int"));
-        resolverDominios(dominios);
+        TelaDominios telaDominios = new TelaDominios(dominios);
     }
 }

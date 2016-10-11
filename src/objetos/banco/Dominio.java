@@ -14,6 +14,7 @@ public class Dominio {
     public String tipo;
     public String V;
     public String F;
+    public boolean editarNome;
     
     public Dominio() {
         

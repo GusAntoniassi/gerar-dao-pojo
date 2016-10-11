@@ -12,14 +12,12 @@ import com.stibocatalog.hunspell.Hunspell;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import metodos.helper.StringHelper;
 import objetos.banco.Atributo;
+import objetos.banco.Dominio;
 import objetos.banco.Tabela;
 import sistema.NomesPojo;
 
@@ -35,6 +33,7 @@ public class SQLInterpreter {
 
     public static final int UNDERLINE = 1;
     public static final int COLADO = 2;
+    public static int padraoPalavras;
 
     private static String separadoParaCamel(String str, CharSequence separador, CharSequence strId) {
         String[] palavras = str.split((String) separador);
@@ -226,6 +225,51 @@ public class SQLInterpreter {
         return nomeTabela;
     }
 
+    public static Dominio pegarDominioDaSQL(String linha) {
+        linha = StringHelper.linhaDepoisDe(linha.replaceAll("\\s+", " "), "CREATE DOMAIN").trim();
+        Dominio dominio = new Dominio();
+        dominio.nome = linha.split(" ")[0];
+        dominio.tipo = tipoSQLParaJava(linha);
+        
+        if (dominio.tipo.equals("char")) {
+            String check = StringHelper.linhaAntesDe(StringHelper.linhaDepoisDe(linha, "VALUE IN ("), ");");
+            if (StringHelper.contarOcorrencias(check, ",") == 1) {
+                dominio.tipo = "boolean";
+                check = check.replace(" ", "");
+                dominio.V = Character.toString(check.charAt(check.indexOf(",") - 2));
+                dominio.F = Character.toString(check.charAt(check.indexOf(",") + 2));
+            }
+        }
+
+        System.out.println(dominio.nome);
+        System.out.println(dominio.tipo);
+        System.out.println(dominio.V);
+        System.out.println(dominio.F);
+        return dominio;
+    }
+
+    public static List<Dominio> pegarTodosOsDominios() {
+        List<Dominio> dominios = new ArrayList();
+        try {
+            br = new BufferedReader(new FileReader(arquivo));
+            String linha;
+
+            while ((linha = br.readLine()) != null) {
+                if (linha.toUpperCase().contains("CREATE DOMAIN")) {
+                    Dominio d = pegarDominioDaSQL(linha);
+                    if (d != null) {
+                        dominios.add(d);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return dominios;
+    }
+    
     public static List<Tabela> interpretarSQLSeparado(CharSequence separador, CharSequence strId) {
         List<Tabela> tabelas = new ArrayList();
 
@@ -466,23 +510,28 @@ public class SQLInterpreter {
     }
 
     public static void main(String[] args) {
-        int padraoPalavras = COLADO;
+        padraoPalavras = UNDERLINE;
 
         if (padraoPalavras == COLADO) {
-
+            try {
+                arquivo = new File(SQLInterpreter.class.getResource("/scripts/colado.sql").toURI());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                arquivo = new File(SQLInterpreter.class.getResource("/scripts/underline.sql").toURI());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         
-        try {
-            //arquivo = new File(SQLInterpreter.class.getResource("/scripts/colado.sql").toURI());
-            arquivo = new File(SQLInterpreter.class.getResource("/scripts/underline.sql").toURI());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        pegarTodosOsDominios();
         
         //List<Tabela> tabelas = interpretarSQLColado("id");
-        List<Tabela> tabelas = interpretarSQLSeparado("_", "id");
+        //List<Tabela> tabelas = interpretarSQLSeparado("_", "id");
 
-        debugarTabelas(tabelas);
+        //debugarTabelas(tabelas);
 
     }
 }
